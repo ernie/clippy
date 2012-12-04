@@ -6,6 +6,12 @@ text onto the client's clipboard. Here is what Clippy looks like on GitHub:
 
 ![Clippy in action](http://img.skitch.com/20090213-cjiawnwig8udf5a6qf1c45cne8.png)
 
+This is a fork of the original Clippy by Tom Preston-Werner. It modifies Clippy
+to copy text by calling a JavaScript callback instead of passing the text to
+copy as a flashvar. This allows for increased flexibility in retrieving the data
+data to copy, and eliminates duplication of text (a possible concern if the text
+to be clipped is lengthy).
+
 Here is a sample Rails (Ruby) helper that can be used to place Clippy on a
 page:
 
@@ -38,15 +44,16 @@ def clippy(callback, parameter = nil, options = {})
            bgcolor="#{bgcolor}"
     />
     </object>
-    HTML
-    html.html_safe
+  HTML
+  html.html_safe
 end
 ```
 
 Clippy (this fork, at least) accepts two parameters (as flashvars):
 
   * callBack *(required)* - A string representing a valid javascript function,
-    such as <tt>function_name</tt> or <tt>MyApplication.function_name</tt>
+    such as <tt>function_name</tt> or <tt>MyApplication.function_name</tt>. Yes,
+    "callBack" is a stupid capitalization, but "callback" is a keyword in Haxe.
   * parameter *(optional)* - A parameter to pass to aforementioned function
 
 It will then call the function provided, and copy its return value to the
