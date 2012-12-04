@@ -9,32 +9,64 @@ text onto the client's clipboard. Here is what Clippy looks like on GitHub:
 Here is a sample Rails (Ruby) helper that can be used to place Clippy on a
 page:
 
-    def clippy(text, bgcolor='#FFFFFF')
-      html = <<-EOF
-        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
-                width="110"
-                height="14"
-                id="clippy" >
-        <param name="movie" value="/flash/clippy.swf"/>
-        <param name="allowScriptAccess" value="always" />
-        <param name="quality" value="high" />
-        <param name="scale" value="noscale" />
-        <param NAME="FlashVars" value="text=#{text}">
-        <param name="bgcolor" value="#{bgcolor}">
-        <embed src="/flash/clippy.swf"
-               width="110"
-               height="14"
-               name="clippy"
-               quality="high"
-               allowScriptAccess="always"
-               type="application/x-shockwave-flash"
-               pluginspage="http://www.macromedia.com/go/getflashplayer"
-               FlashVars="text=#{text}"
-               bgcolor="#{bgcolor}"
-        />
-        </object>
-      EOF
-    end
+```ruby
+def clippy(callback, parameter = nil, options = {})
+  bgcolor   = options[:bgcolor] || '#fff'
+  id        = options[:id] || 'clippy'
+  css_class = options[:class] || 'clippy'
+  html = <<-HTML
+    <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-44455354000"
+            width="110"
+            height="14"
+            id="#{id}" class="#{css_class}">
+    <param name="movie" value="/flash/clippy.swf" />
+    <param name="allowScriptAccess" value="always" />
+    <param name="quality" value="high" />
+    <param name="scale" value="noscale" />
+    <param NAME="FlashVars"
+           value="callBack=#{callback}&parameter=#{parameter}" />
+    <param name="bgcolor" value="#{bgcolor}" />
+    <embed src="/flash/clippy.swf"
+           width="110"
+           height="14"
+           name="clippy"
+           quality="high"
+           allowScriptAccess="always"
+           type="application/x-shockwave-flash"
+           pluginspage="http://www.macromedia.com/go/getflashplayer"
+           FlashVars="callBack=#{callback}&parameter=#{parameter}"
+           bgcolor="#{bgcolor}"
+    />
+    </object>
+    HTML
+    html.html_safe
+end
+```
+
+Clippy (this fork, at least) accepts two parameters (as flashvars):
+
+  * callBack *(required)* - A string representing a valid javascript function,
+    such as <tt>function_name</tt> or <tt>MyApplication.function_name</tt>
+  * parameter *(optional)* - A parameter to pass to aforementioned function
+
+It will then call the function provided, and copy its return value to the
+clipboard.
+
+For example, to copy the HTML content of a div with a specific ID in Rails,
+using jQuery and the helper above:
+
+```html
+<div id="my_awesome_content">
+  This content is so <i>awesome</i>!
+</div>
+<script type="text/javascript">
+  function fetch_content(id) {
+    return $('#' + id).html();
+  };
+</script>
+
+<%= clippy 'fetch_content', 'my_awesome_content' %>
+```
 
 Installation (Pre-Built SWF)
 ---------------------------
